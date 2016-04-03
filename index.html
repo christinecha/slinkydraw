@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <style>
+      body, * { margin: 0 0 0 0; padding: 0 0 0 0; }
+      #canvas-container { width: 100vw; height: 100vh; overflow: hidden; }
+      #toolbar {
+        font-family: "Inconsolata";
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        left: 0;
+        background-color: #fff;
+        padding: 10px;
+      }
+      #toolbar h4 { font-size: 14px; margin-bottom: 10px; }
+    </style>
+
+      <div id="canvas-container">
+        <canvas id="myCanvas"></canvas>
+        <div id="toolbar">
+          <h4>SPACE ..... start / stop drawing</h4>
+          <h4>S ......... save the image</h4>
+          <h4>Q ......... increase radius value</h4>
+          <h4>R ......... increase red value</h4>
+          <h4>G ......... increase green value</h4>
+          <h4>B ......... increase blue value</h4>
+          <h4>+ SHIFT ... decrease value</h4>
+          <h4>C ......... clear image</h4>
+        </div>
+      </div>
+
+    <script>
+      window.addEventListener('resize', resizeCanvas)
+      window.addEventListener('keypress', handleKeypress)
+      document.addEventListener('mousemove', drawStuff)
+
+      var canvasContainer = document.getElementById("canvas-container")
+      var canvas = document.getElementById("myCanvas")
+      var context = canvas.getContext("2d")
+      var drawMode = false
+      var radius = 100
+
+      function resizeCanvas() {
+        canvas.width = canvasContainer.clientWidth
+        canvas.height = canvasContainer.clientHeight
+      }
+
+      function handleKeypress(e) {
+        var direction = e.shiftKey ? -1 : 1
+        if (e.code === "Space") drawMode = !drawMode ? true : false
+        if (e.code === "KeyS") {
+          var file = canvas.toDataURL("image/png")
+          drawMode = false
+          window.open(file, '_blank')
+        }
+        if (e.code === "KeyQ" && radius >= 10) radius += (1 * direction)
+        if (e.code === "KeyC") context.clearRect(0, 0, canvas.width, canvas.height)
+      }
+
+      // templates
+      var grd = context.createRadialGradient(100, 100, 100, 100, 100, 0);
+      grd.addColorStop(0, "rgba(255,0,0,0)");
+      grd.addColorStop(1, "rgba(255,0,0,0.8)");
+
+      function drawStuff(e) {
+        if (!drawMode) return false
+        context.fillStyle = grd
+        context.beginPath()
+        context.arc(e.clientX, e.clientY, radius, 0, Math.PI * 2)
+        context.stroke()
+      }
+
+
+      resizeCanvas()
+
+    </script>
+  </body>
+</html>
