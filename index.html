@@ -15,10 +15,16 @@
         z-index: 100;
         top: 0;
         left: 0;
-        background-color: #fff;
+        background-color: rgba(255,255,255,0.8);
         padding: 10px;
       }
       #toolbar h4 { font-size: 14px; margin-bottom: 10px; }
+      #preview {
+        border-radius: 100%;
+        border: 1px solid rgba(80,80,80,0.8);
+        width: 160px;
+        height: 160px;
+        margin: 0 auto; }
     </style>
 
       <div id="canvas-container">
@@ -30,8 +36,10 @@
           <h4>R ......... increase red value</h4>
           <h4>G ......... increase green value</h4>
           <h4>B ......... increase blue value</h4>
+          <h4>A ......... increase opacity value</h4>
           <h4>+ SHIFT ... decrease value</h4>
           <h4>C ......... clear image</h4>
+          <div id="preview"></div>
         </div>
       </div>
 
@@ -42,16 +50,39 @@
 
       var canvasContainer = document.getElementById("canvas-container")
       var canvas = document.getElementById("myCanvas")
+      var preview = document.getElementById("preview")
       var context = canvas.getContext("2d")
       var drawMode = false
-      var radius = 100
+      var radius = 80
+      var r = 80
+      var g = 80
+      var b = 80
+      var a = 0.8
+
+      function getColor(r,g,b,a) {
+        return "rgba(" + r + "," + g + "," + b + "," + a + ")"
+      }
+
+      function limit(val, min, max) {
+        if (val <= min) return min
+        if (val >= max) return max
+        return val
+      }
 
       function resizeCanvas() {
         canvas.width = canvasContainer.clientWidth
         canvas.height = canvasContainer.clientHeight
       }
 
+      function drawPreview() {
+        console.log('drawing preview')
+        preview.style.border = "1px solid " + getColor(r,g,b,a)
+        preview.style.width = radius * 2 + "px"
+        preview.style.height = radius * 2 + "px"
+      }
+
       function handleKeypress(e) {
+        drawPreview()
         var direction = e.shiftKey ? -1 : 1
         if (e.code === "Space") drawMode = !drawMode ? true : false
         if (e.code === "KeyS") {
@@ -59,26 +90,23 @@
           drawMode = false
           window.open(file, '_blank')
         }
-        if (e.code === "KeyQ" && radius >= 10) radius += (1 * direction)
+        if (e.code === "KeyQ") radius = limit(radius + (1 * direction), 4, 130)
+        if (e.code === "KeyR") r = limit(r + (1 * direction), 0, 255)
+        if (e.code === "KeyG") g = limit(g + (1 * direction), 0, 255)
+        if (e.code === "KeyB") b = limit(b + (1 * direction), 0, 255)
+        if (e.code === "KeyA") a = limit(a + (0.05 * direction), 0, 1)
         if (e.code === "KeyC") context.clearRect(0, 0, canvas.width, canvas.height)
       }
 
-      // templates
-      var grd = context.createRadialGradient(100, 100, 100, 100, 100, 0);
-      grd.addColorStop(0, "rgba(255,0,0,0)");
-      grd.addColorStop(1, "rgba(255,0,0,0.8)");
-
       function drawStuff(e) {
         if (!drawMode) return false
-        context.fillStyle = grd
+        context.strokeStyle = getColor(r,g,b,a)
         context.beginPath()
         context.arc(e.clientX, e.clientY, radius, 0, Math.PI * 2)
         context.stroke()
       }
 
-
       resizeCanvas()
-
     </script>
   </body>
 </html>
