@@ -7,29 +7,39 @@
   </head>
   <body>
     <style>
-      body, * { margin: 0 0 0 0; padding: 0 0 0 0; }
-      #canvas-container { width: 100vw; height: 100vh; overflow: hidden; }
+      body, * { margin: 0 0 0 0; padding: 0 0 0 0; font-family: "Inconsolata", monospace; }
+      #canvas-container {
+        background-color: rgb(240,240,241);
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
       #toolbar {
-        font-family: "Inconsolata";
         position: fixed;
         z-index: 100;
         top: 0;
         left: 0;
-        background-color: rgba(255,255,255,0.8);
-        padding: 10px;
+        background-color: rgba(240,240,241,0.8);
+        padding: 20px;
       }
       #toolbar h4 { font-size: 14px; margin-bottom: 10px; }
+      #generate { display: block; border: none; padding: 5px; font-size: 13px; cursor: pointer; }
+      #generate:hover { background-color: #ffff00; }
+      #color-preview { height: 12px; width: 30px; display: inline-block; background-color: rgba(80,80,80,0.8); vertical-align: middle; }
       #preview {
         border-radius: 100%;
         border: 1px solid rgba(80,80,80,0.8);
         width: 160px;
         height: 160px;
-        margin: 0 auto; }
+        margin: 10px; }
     </style>
 
       <div id="canvas-container">
         <canvas id="myCanvas"></canvas>
         <div id="toolbar">
+          <h3>slinkydraw</h3>
+          <h6>by <a href="http://christinecha.com">christine cha</a></h6>
+          <br />
           <h4>SPACE ..... start / stop drawing</h4>
           <h4>S ......... save the image</h4>
           <h4>Q ......... increase radius value</h4>
@@ -39,21 +49,36 @@
           <h4>A ......... increase opacity value</h4>
           <h4>+ SHIFT ... decrease value</h4>
           <h4>C ......... clear image</h4>
+          <br />
+          <h6>PREVIEW:</h6>
+          <h5>
+            <span style="color: red;">R </span><span id="r">80</span>
+            <span style="color: green;">G </span><span id="g">80</span>
+            <span style="color: blue;">B </span><span id="b">80</span>
+            A <span id="a">0.80</span>
+            <div id="color-preview"></div>
+          </h5>
           <div id="preview"></div>
         </div>
       </div>
 
     <script>
+      var canvasContainer = document.getElementById("canvas-container")
+      var canvas = document.getElementById("myCanvas")
+      var colorPreview = document.getElementById("color-preview")
+      var preview = document.getElementById("preview")
+
       window.addEventListener('resize', resizeCanvas)
       window.addEventListener('keypress', handleKeypress)
       document.addEventListener('mousemove', drawStuff)
 
-      var canvasContainer = document.getElementById("canvas-container")
-      var canvas = document.getElementById("myCanvas")
-      var preview = document.getElementById("preview")
       var context = canvas.getContext("2d")
+      var auto = false
       var drawMode = false
       var radius = 80
+      var autoX = 100
+      var autoY = 100
+      var autoFrames = 0
       var r = 80
       var g = 80
       var b = 80
@@ -79,6 +104,11 @@
         preview.style.border = "1px solid " + getColor(r,g,b,a)
         preview.style.width = radius * 2 + "px"
         preview.style.height = radius * 2 + "px"
+        colorPreview.style.backgroundColor = getColor(r,g,b,a)
+        document.getElementById("r").innerHTML = r
+        document.getElementById("g").innerHTML = g
+        document.getElementById("b").innerHTML = b
+        document.getElementById("a").innerHTML = a.toFixed(2)
       }
 
       function handleKeypress(e) {
@@ -94,15 +124,17 @@
         if (e.code === "KeyR") r = limit(r + (1 * direction), 0, 255)
         if (e.code === "KeyG") g = limit(g + (1 * direction), 0, 255)
         if (e.code === "KeyB") b = limit(b + (1 * direction), 0, 255)
-        if (e.code === "KeyA") a = limit(a + (0.05 * direction), 0, 1)
+        if (e.code === "KeyA") a = limit(a + (0.02 * direction), 0, 1)
         if (e.code === "KeyC") context.clearRect(0, 0, canvas.width, canvas.height)
       }
 
       function drawStuff(e) {
         if (!drawMode) return false
+        var x = auto ? autoX : e.clientX
+        var y = auto ? autoY : e.clientY
         context.strokeStyle = getColor(r,g,b,a)
         context.beginPath()
-        context.arc(e.clientX, e.clientY, radius, 0, Math.PI * 2)
+        context.arc(x, y, radius, 0, Math.PI * 2)
         context.stroke()
       }
 
