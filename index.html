@@ -53,7 +53,9 @@
           <h4>B ......... increase blue value</h4>
           <h4>A ......... increase opacity value</h4>
           <h4>+ SHIFT ... decrease value</h4>
+          <br />
           <h4>C ......... clear image</h4>
+          <h4>Z ......... invert background color</h4>
           <br />
           <h6>PREVIEW:</h6>
           <h5>
@@ -88,6 +90,7 @@
       var g = 80
       var b = 80
       var a = 0.8
+      var inverted = false
 
       function getColor(r,g,b,a) {
         return "rgba(" + r + "," + g + "," + b + "," + a + ")"
@@ -131,6 +134,10 @@
         if (e.code === "KeyB") b = limit(b + (1 * direction), 0, 255)
         if (e.code === "KeyA") a = limit(a + (0.02 * direction), 0, 1)
         if (e.code === "KeyC") context.clearRect(0, 0, canvas.width, canvas.height)
+        if (e.code === "KeyZ") {
+          canvasContainer.style.backgroundColor = inverted ? 'rgb(240,240,241)' : 'rgb(0,0,2)'
+          inverted = !inverted
+        }
       }
 
       function drawStuff(e) {
